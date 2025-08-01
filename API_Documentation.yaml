@@ -1,0 +1,254 @@
+
+openapi: 3.0.3
+info:
+  title: Book Review Web App API
+  version: 1.1.0
+  description: >
+    A web app for book reviews, including user registration/login, profile management,
+    book search via Google Books API, and review posting. Books and reviews are stored in a MySQL database.
+
+servers:
+  - url: http://localhost:5000
+    description: Local development server
+
+paths:
+  /register:
+    post:
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserRegister'
+      responses:
+        '302':
+          description: Redirects to homepage with flash message
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlashMessage'
+
+  /login:
+    post:
+      summary: Log in a user
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserLogin'
+      responses:
+        '302':
+          description: Redirects to homepage on successful login
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlashMessage'
+
+  /logout:
+    get:
+      summary: Log out current user
+      responses:
+        '302':
+          description: Redirects to homepage and clears session
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlashMessage'
+
+  /profile:
+    get:
+      summary: Show logged-in user's reviews
+      responses:
+        '200':
+          description: Renders profile.html with reviews and books
+
+  /:
+    get:
+      summary: Show all books and their reviews
+      responses:
+        '200':
+          description: Renders index.html with all books and associated reviews
+
+  /search:
+    get:
+      summary: Search books from Google Books API
+      parameters:
+        - name: query
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Renders search.html with search results
+
+    post:
+      summary: Search books from Google Books API
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                query:
+                  type: string
+      responses:
+        '200':
+          description: Renders search.html with search results
+
+  /review/{book_id}:
+    get:
+      summary: View book and its reviews
+      parameters:
+        - name: book_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Renders review.html with book info and reviews
+
+    post:
+      summary: Submit review for a book
+      parameters:
+        - name: book_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReviewInput'
+      responses:
+        '302':
+          description: Redirects back to book review page
+
+  /add_and_review:
+    post:
+      summary: Add a new book and redirect to review
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/BookInput'
+      responses:
+        '302':
+          description: Redirects to /review/{book_id}
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        password:
+          type: string
+        email:
+          type: string
+
+    Book:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        author:
+          type: string
+        description:
+          type: string
+        cover:
+          type: string
+
+    Review:
+      type: object
+      properties:
+        id:
+          type: integer
+        user_id:
+          type: integer
+        book_id:
+          type: integer
+        rating:
+          type: integer
+        comment:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    UserRegister:
+      type: object
+      required: [username, password]
+      properties:
+        username:
+          type: string
+          example: "reader_girl"
+        email:
+          type: string
+          example: "reader@example.com"
+        password:
+          type: string
+          example: "SecurePass123"
+
+    UserLogin:
+      type: object
+      required: [username, password]
+      properties:
+        username:
+          type: string
+          example: "reader_girl"
+        password:
+          type: string
+          example: "SecurePass123"
+
+    ReviewInput:
+      type: object
+      required: [rating, comment]
+      properties:
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          example: 4
+        comment:
+          type: string
+          example: "Amazing book on astronomy!"
+
+    BookInput:
+      type: object
+      required: [title, author, description, cover]
+      properties:
+        title:
+          type: string
+          example: "The Hidden Reality"
+        author:
+          type: string
+          example: "Brian Greene"
+        description:
+          type: string
+          example: "A book about multiple universes"
+        cover:
+          type: string
+          example: "https://example.com/cover.jpg"
+
+    FlashMessage:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "You have been logged out."
+        redirect:
+          type: string
+          example: "/"

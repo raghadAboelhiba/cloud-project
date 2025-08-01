@@ -1,0 +1,42 @@
+.star-rating {
+    direction: rtl;
+    display: inline-block;
+    font-size: 2em;
+    unicode-bidi: bidi-override;
+}
+
+.star-rating input {
+    display: none;
+}
+
+.star-rating label {
+    color: lightgray;
+    cursor: pointer;
+}
+.card {
+    animation: fadeIn 0.8s ease-in-out;
+    max-width: 300px;
+    margin: auto;
+}
+
+@keyframes fadeIn {
+    0% {opacity: 0; transform: translateY(10px);}
+    100% {opacity: 1; transform: translateY(0);}
+}
+
+.star-rating input:checked ~ label,
+.star-rating label:hover,
+.star-rating label:hover ~ label {
+    color: gold;
+}
+.book-cover {
+  max-width: 300px;
+  max-height: 400px;
+  width: auto;
+  height: auto;
+  display: block;
+  margin-bottom: 1rem;
+}
+
+
+
